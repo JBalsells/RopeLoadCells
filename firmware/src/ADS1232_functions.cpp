@@ -1,4 +1,5 @@
 #include <definitions.h>
+#include "ILI9341_functions.h"
 
 long readADS1232() {
   while (digitalRead(pinData1));  // Espera a que DOUT esté en bajo
@@ -23,4 +24,15 @@ long readADS1232() {
   digitalWrite(pinSCLK1, LOW);
   
   return result;
+}
+
+long auto_calibrate(int samples){
+  int i;
+  long suma_datos = 0;
+
+  for (i = 0; i < samples; i++) {
+    suma_datos += readADS1232();
+    }
+
+  return suma_datos/samples;
 }
