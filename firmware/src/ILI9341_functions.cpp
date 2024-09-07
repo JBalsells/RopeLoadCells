@@ -59,15 +59,14 @@ void drawText(int color, int x, int y, int text_size, String text){
 
 void drawFramework(){
   drawText(GREEN, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*0, 2, "Channel 1");
-  drawText(ORANGE, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*1, 2, "Channel 2");
+  drawText(GREEN, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*1, 2, "Channel 2");
+  drawText(ORANGE, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*2, 2, "Relation CH2/CH1");
+  drawText(ORANGE, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*3, 2, "Relation CH2/CH1");
+  drawText(ORANGE, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*4, 2, "Relation CH2/CH1");
 
-  //tft.setTextColor(WHITE);
-  //tft.setTextSize(6);
-  //tft.setCursor(SCREEN_WIDTH_MIN + 20, SCREEN_HEIGHT_MIN + 10);
-  //tft.println("N");
-
-  //tft.drawRect(SCREEN_WIDTH_MIN, SCREEN_HEIGHT_MIN, SCREEN_WIDTH_MAX, SCREEN_HEIGHT_MAX, WHITE);
-  //tft.drawRect(SCREEN_WIDTH_MIN, SCREEN_HEIGHT_MIN, SCREEN_WIDTH_MAX, SCREEN_HEIGHT_MAX/2, WHITE);
+  tft.drawRect(SCREEN_WIDTH_MIN, SCREEN_HEIGHT_MIN, SCREEN_WIDTH_MAX, SCREEN_HEIGHT_MAX, WHITE);
+  tft.drawRect(SCREEN_WIDTH_MIN, SCREEN_HEIGHT_MIDDLE, SCREEN_WIDTH_MAX, SCREEN_HEIGHT_MIDDLE, WHITE);
+  tft.drawRect(SCREEN_WIDTH_MIDDLE, SCREEN_HEIGHT_MIDDLE, SCREEN_WIDTH_MIDDLE, SCREEN_HEIGHT_MIDDLE, WHITE);
 }
 
 void setValue(long value1, char unit[6], int channel){
@@ -76,9 +75,16 @@ void setValue(long value1, char unit[6], int channel){
   int w = 0;
   int h = 0;
   int row = 0;
+  int color = 0;
 
-  if (channel == 1){row = 0;}
-  if (channel == 2){row = 1;}
+  if (channel == 1){
+    row = 0;
+    color = YELLOW;
+    }
+  if (channel == 2){
+    row = 1;
+    color = YELLOW;
+    }
 
   x = SCREEN_WIDTH_MIDDLE;
   y = SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*row;
@@ -91,7 +97,7 @@ void setValue(long value1, char unit[6], int channel){
   strcat(str, unit);
 
   eraseText(BLACK, x, y, w, h);
-  drawText(GREEN, x, y, 2, str);
+  drawText(color, x, y, 2, str);
 }
 
 void initializingDisplay(){
