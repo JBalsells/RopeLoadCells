@@ -4,6 +4,8 @@
 #include "ILI9341_functions.h"
 #include "ADS1232_functions.h"
 
+int CHANNEL = 1;
+char UNIT[6] = "";
 
 void setup() {
   Serial.begin(115200);
@@ -28,7 +30,15 @@ void setup() {
 
 void loop() {
   long load_cell_raw_value = readADS1232();
-  setValue(load_cell_raw_value);
+  
+  CHANNEL = 1;
+  strcpy(UNIT, "Kg");
+  setValue(load_cell_raw_value, UNIT, CHANNEL);
+
+  CHANNEL = 2;
+  strcpy(UNIT, "N");
+  setValue(load_cell_raw_value, UNIT, CHANNEL);
+
   delay(100);
 
 }

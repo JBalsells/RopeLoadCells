@@ -14,7 +14,9 @@ const int SCREEN_HEIGHT_MIN = 0;
 const int SCREEN_WIDTH_MAX = 320;
 const int SCREEN_HEIGHT_MAX = 240;
 const int SCREEN_WIDTH_MIDDLE = (SCREEN_WIDTH_MAX - SCREEN_WIDTH_MIN)/2;
-const int SCREEN_HEIGHT_MIDDLE = (SCREEN_HEIGHT_MAX-SCREEN_HEIGHT_MIN)/2;
+const int SCREEN_HEIGHT_MIDDLE = (SCREEN_HEIGHT_MAX - SCREEN_HEIGHT_MIN)/2;
+const int MARGIN_SIZE = 10;
+const int ROW_SIZE = 20;
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 
@@ -44,37 +46,52 @@ void drawHistogram(const float* data, int numBars) {
   }
 }
 
-void drawFramework(){
-  tft.setTextColor(GREEN);
-  tft.setTextSize(2);
-  tft.setCursor(SCREEN_WIDTH_MAX - 120, SCREEN_HEIGHT_MIN + 10);
-  tft.println("Channel 1");
-
-  tft.setTextColor(WHITE);
-  tft.setTextSize(6);
-  tft.setCursor(SCREEN_WIDTH_MAX - 45, (SCREEN_HEIGHT_MIDDLE-SCREEN_HEIGHT_MIN)/2);
-  tft.println("N");
-
-  tft.setTextColor(ORANGE);
-  tft.setTextSize(2);
-  tft.setCursor(SCREEN_WIDTH_MAX - 120, SCREEN_HEIGHT_MIDDLE + 10);
-  tft.println("Channel 2");
-
-  tft.setTextColor(WHITE);
-  tft.setTextSize(6);
-  tft.setCursor(SCREEN_WIDTH_MAX - 45, (SCREEN_HEIGHT_MAX-SCREEN_HEIGHT_MIDDLE)/2 + SCREEN_HEIGHT_MIDDLE);
-  tft.println("N");
-
-  tft.drawRect(SCREEN_WIDTH_MIN, SCREEN_HEIGHT_MIN, SCREEN_WIDTH_MAX, SCREEN_HEIGHT_MAX, WHITE);
-  tft.drawRect(SCREEN_WIDTH_MIN, SCREEN_HEIGHT_MIN, SCREEN_WIDTH_MAX, SCREEN_HEIGHT_MAX/2, WHITE);
+void eraseText(int color, int x, int y, int w, int h){
+  tft.fillRect(x, y, w, h, color);
 }
 
-void setValue(long value1){
-  tft.fillRect((SCREEN_WIDTH_MIN + SCREEN_WIDTH_MIDDLE)/2 + 10, (SCREEN_HEIGHT_MIN + SCREEN_HEIGHT_MIDDLE)/2, SCREEN_WIDTH_MAX - 145, (SCREEN_HEIGHT_MIDDLE-SCREEN_HEIGHT_MIN)/2 - 25, ORANGE);
-  tft.setTextColor(WHITE);
-  tft.setTextSize(5);
-  tft.setCursor((SCREEN_WIDTH_MIN + SCREEN_WIDTH_MIDDLE)/2 + 10, (SCREEN_HEIGHT_MIN + SCREEN_HEIGHT_MIDDLE)/2);
-  tft.println(value1);
+void drawText(int color, int x, int y, int text_size, String text){
+  tft.setTextColor(color);
+  tft.setTextSize(text_size);
+  tft.setCursor(x, y);
+  tft.println(text);
+}
+
+void drawFramework(){
+  drawText(GREEN, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*0, 2, "Channel 1");
+  drawText(ORANGE, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*1, 2, "Channel 2");
+
+  //tft.setTextColor(WHITE);
+  //tft.setTextSize(6);
+  //tft.setCursor(SCREEN_WIDTH_MIN + 20, SCREEN_HEIGHT_MIN + 10);
+  //tft.println("N");
+
+  //tft.drawRect(SCREEN_WIDTH_MIN, SCREEN_HEIGHT_MIN, SCREEN_WIDTH_MAX, SCREEN_HEIGHT_MAX, WHITE);
+  //tft.drawRect(SCREEN_WIDTH_MIN, SCREEN_HEIGHT_MIN, SCREEN_WIDTH_MAX, SCREEN_HEIGHT_MAX/2, WHITE);
+}
+
+void setValue(long value1, char unit[6], int channel){
+  int x = 0;
+  int y = 0;
+  int w = 0;
+  int h = 0;
+  int row = 0;
+
+  if (channel == 1){row = 0;}
+  if (channel == 2){row = 1;}
+
+  x = SCREEN_WIDTH_MIDDLE;
+  y = SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*row;
+  w = SCREEN_WIDTH_MIDDLE - 1;
+  h = ROW_SIZE - 1;
+
+  char str[12];
+  snprintf(str, sizeof(str), "%d", value1);
+  strcat(str, " ");
+  strcat(str, unit);
+
+  eraseText(BLACK, x, y, w, h);
+  drawText(GREEN, x, y, 2, str);
 }
 
 void initializingDisplay(){
