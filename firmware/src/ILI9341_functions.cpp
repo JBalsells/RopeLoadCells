@@ -108,7 +108,30 @@ void setGraphicalValue(int initialized=true, long value=0, int channel=0){
 
 }
 
-void setNumericValue(long value, char unit[6], int channel){
+void setRelationValue(float value){
+  int x = 0;
+  int y = 0;
+  int w = 0;
+  int h = 0;
+  int row = 0;
+  int color = 0;
+
+  row = 2;
+  color = ORANGE;
+
+  x = SCREEN_WIDTH_MIDDLE;
+  y = SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*row;
+  w = SCREEN_WIDTH_MIDDLE - 1;
+  h = ROW_SIZE - 1;
+
+  char float_value[20];
+  snprintf(float_value, sizeof(float_value), "%.4f", value);
+
+  eraseText(BLACK, x, y, w, h);
+  drawText(color, x, y, 2, float_value);
+}
+
+void setChannelValue(long value, char unit[6], int channel){
   int x = 0;
   int y = 0;
   int w = 0;
@@ -123,10 +146,6 @@ void setNumericValue(long value, char unit[6], int channel){
   if (channel == 2){
     row = 1;
     color = WHITE;
-    }
-  if (channel == 3){ // ch2/ch1 relation
-    row = 2;
-    color = ORANGE;
     }
 
   x = SCREEN_WIDTH_MIDDLE;
@@ -186,7 +205,7 @@ void initializingDisplay(){
   tft.setTextColor(ILI9341_WHITE);
   tft.setTextSize(3);
   tft.println("LOAD CELLS DRIVER");
-  delay(2000);
+  delay(1000);
 
   tft.fillScreen(ILI9341_BLACK);
 }

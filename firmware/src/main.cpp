@@ -5,11 +5,14 @@
 #include "ADS1232_functions.h"
 
 char UNIT[6] = "";
-int OFFSET = 0;
+int OFFSET_CHANNEL_1 = 0;
+int OFFSET_CHANNEL_2 = 0;
 int CHANNEL = 1;
-int SAMPLES = 100;
+int SAMPLES = 150;
 long raw_value_channel_1 = 0;
 long raw_value_channel_2 = 0;
+long normalized_channel_1 = 0;
+long normalized_channel_2 = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -30,18 +33,27 @@ void setup() {
   initializingDisplay();
   drawFramework();
   eraseInformation(3);
-  drawInformation("_____calibrating_____", 3, 1);
-  OFFSET = auto_calibrate(SAMPLES);
-  eraseInformation(3);
 
   char samples_str[10];
-  char offset_str[50];
-  char calibration_info[50] = "samples:";
   snprintf(samples_str, sizeof(samples_str), "%d", SAMPLES);
-  snprintf(offset_str, sizeof(offset_str), "%d", OFFSET);
-  strcat(calibration_info, samples_str);
-  strcat(calibration_info, " offset:");
-  strcat(calibration_info, offset_str);
+  char ch1_info[50] = "CALIBRATING CH1 SMP: ";
+  drawInformation(strcat(ch1_info, samples_str), 3, 1);
+  OFFSET_CHANNEL_1 = auto_calibrate(SAMPLES, pinData1, pinSCLK1, pinPOMN1);
+  eraseInformation(3);
+  char ch2_info[50] = "CALIBRATING CH2 SMP: ";
+  drawInformation(strcat(ch2_info, samples_str), 3, 1);
+  OFFSET_CHANNEL_2 = auto_calibrate(SAMPLES, pinData2, pinSCLK2, pinPOMN2);
+  eraseInformation(3);
+
+  char offset_str_1[20];
+  char offset_str_2[20];
+  char calibration_info[50] = "";
+  snprintf(offset_str_1, sizeof(offset_str_1), "%d", OFFSET_CHANNEL_1);
+  snprintf(offset_str_2, sizeof(offset_str_2), "%d", OFFSET_CHANNEL_2);
+  strcat(calibration_info, " OS1:");
+  strcat(calibration_info, offset_str_1);
+  strcat(calibration_info, " OS2:");
+  strcat(calibration_info, offset_str_2);
   drawInformation(calibration_info, 3, 0);
 }
 
@@ -49,15 +61,16 @@ void loop() {
 
   CHANNEL = 1;
   strcpy(UNIT, "u");
-  raw_value_channel_1 = readADS1232() - OFFSET;
-  setNumericValue(raw_value_channel_1, UNIT, CHANNEL);
+  raw_value_channel_1 = readADS1232(pinData1, pinSCLK1, pinPOMN1);
+  normalized_channel_1 = raw_value_channel_1 - OFFSET_CHANNEL_1;
+  setChannelValue(normalized_channel_1, UNIT, CHANNEL);
 
   CHANNEL = 2;
   strcpy(UNIT, "u");
-  raw_value_channel_2 = readADS1232() - OFFSET;
-  setNumericValue(raw_value_channel_2, UNIT, CHANNEL);
+  raw_value_channel_2 = readADS1232(pinData2, pinSCLK2, pinPOMN2);
+  normalized_channel_2 = raw_value_channel_2 - OFFSET_CHANNEL_2;
+  setChannelValue(normalized_channel_2, UNIT, CHANNEL);
 
-  CHANNEL = 3;
-  setNumericValue(raw_value_channel_2/raw_value_channel_1, "u", CHANNEL);
+  setRelationValue((float)normalized_channel_1/(float)normalized_channel_2);
 
 }
