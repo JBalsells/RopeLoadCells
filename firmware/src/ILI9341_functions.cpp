@@ -106,10 +106,28 @@ void setGraphicalValue(bool initialized=true, std::vector<int> channel_1={0}, st
 
     tft.drawLine(SCREEN_WIDTH_MIN+1, GRAPHIC_X_AXIS, SCREEN_WIDTH_MIDDLE-1, GRAPHIC_X_AXIS, RED);
 
+
+    char message[40]; // Un buffer más grande para manejar todos los mensajes
+    int ch1_min = *std::min_element(channel_1.begin(), channel_1.end());
+    int ch1_max = *std::max_element(channel_1.begin(), channel_1.end());
+    int ch2_min = *std::min_element(channel_2.begin(), channel_2.end());
+    int ch2_max = *std::max_element(channel_2.begin(), channel_2.end());
+
     row = 0;
-    drawText(GREEN, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "max: ");
+    snprintf(message, sizeof(message), "max: %d", ch1_max);
+    drawText(GREEN, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
+
     row = 1;
-    drawText(YELLOW, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "max: ");    
+    snprintf(message, sizeof(message), "min: %d", ch1_min);
+    drawText(GREEN, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
+
+    row = 2;
+    snprintf(message, sizeof(message), "max: %d", ch2_max);
+    drawText(YELLOW, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
+
+    row = 3;
+    snprintf(message, sizeof(message), "min: %d", ch2_min);
+    drawText(YELLOW, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message); 
   }
 }
 

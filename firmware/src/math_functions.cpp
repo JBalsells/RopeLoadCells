@@ -40,7 +40,16 @@ std::vector<int> normalize_vector(const std::vector<int>& vec, int new_min = -50
     // Normaliza los valores y los almacena en el nuevo vector
     vector_normalizado.reserve(vec.size());
     for (int valor : vec) {
+        // Normaliza el valor
         int valor_normalizado = new_min + (valor - viejo_min) * (new_max - new_min) / (viejo_max - viejo_min);
+
+        // Limitar el valor a los rangos -50 a 50
+        if (valor_normalizado > new_max) {
+            valor_normalizado = new_max;
+        } else if (valor_normalizado < new_min) {
+            valor_normalizado = new_min;
+        }
+
         vector_normalizado.push_back(valor_normalizado);
     }
 
