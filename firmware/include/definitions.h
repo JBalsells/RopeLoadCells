@@ -1,5 +1,6 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
+#include <algorithm>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
