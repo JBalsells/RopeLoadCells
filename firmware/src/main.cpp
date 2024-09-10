@@ -8,11 +8,16 @@ char UNIT[6] = "";
 int OFFSET_CHANNEL_1 = 0;
 int OFFSET_CHANNEL_2 = 0;
 int CHANNEL = 1;
-int SAMPLES = 150;
+int SAMPLES = 50;
 long raw_value_channel_1 = 0;
 long raw_value_channel_2 = 0;
 long normalized_channel_1 = 0;
 long normalized_channel_2 = 0;
+
+int vector_index = 0;
+std::vector<int> channel_1_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+std::vector<int> channel_2_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 
 void setup() {
   Serial.begin(115200);
@@ -73,4 +78,14 @@ void loop() {
 
   setRelationValue((float)normalized_channel_1/(float)normalized_channel_2);
 
+
+  channel_1_vector.erase(channel_1_vector.begin());
+  channel_1_vector.push_back(normalized_channel_1);
+  std::vector<int> channel_1_normalized_vector = normalize_vector(channel_1_vector);
+
+
+  channel_2_vector.erase(channel_2_vector.begin());
+  channel_2_vector.push_back(-10);
+
+  setGraphicalValue(false, channel_1_normalized_vector, channel_2_vector);
 }
