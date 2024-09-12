@@ -8,12 +8,13 @@ char UNIT[6] = "";
 int OFFSET_CHANNEL_1 = 0;
 int OFFSET_CHANNEL_2 = 0;
 int CHANNEL = 1;
-int SAMPLES = 50;
+int SAMPLES = 150;
 long raw_value_channel_1 = 0;
 long raw_value_channel_2 = 0;
-long normalized_channel_1 = 0;
-long normalized_channel_2 = 0;
+double normalized_channel_1 = 0;
+double normalized_channel_2 = 0;
 
+int vector_index = 0;
 std::vector<int> channel_1_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::vector<int> channel_2_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
@@ -66,13 +67,13 @@ void loop() {
   CHANNEL = 1;
   strcpy(UNIT, "u");
   raw_value_channel_1 = readADS1232(pinData1, pinSCLK1, pinPOMN1);
-  normalized_channel_1 = raw_value_channel_1 - OFFSET_CHANNEL_1;
+  normalized_channel_1 = load_scale(raw_value_channel_1 - OFFSET_CHANNEL_1);
   setChannelValue(normalized_channel_1, UNIT, CHANNEL);
 
   CHANNEL = 2;
   strcpy(UNIT, "u");
   raw_value_channel_2 = readADS1232(pinData2, pinSCLK2, pinPOMN2);
-  normalized_channel_2 = raw_value_channel_2 - OFFSET_CHANNEL_2;
+  normalized_channel_2 = load_scale(raw_value_channel_2 - OFFSET_CHANNEL_2);
   setChannelValue(normalized_channel_2, UNIT, CHANNEL);
 
   setRelationValue((float)normalized_channel_1/(float)normalized_channel_2);
@@ -84,7 +85,7 @@ void loop() {
 
 
   channel_2_vector.erase(channel_2_vector.begin());
-  channel_2_vector.push_back(0);
+  channel_2_vector.push_back(-10);
 
   setGraphicalValue(false, channel_1_normalized_vector, channel_2_vector);
 }

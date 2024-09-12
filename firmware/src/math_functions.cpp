@@ -22,6 +22,15 @@ double random_normal_generatos(double media, double desviacion) {
     }
 }
 
+double load_scale(long adc_value = 0) {
+    const int LOAD_CELL_SCALE = 500;
+    const long ADC_SCALE = (1L << 23);
+
+    double scale = ((double)adc_value / (double)ADC_SCALE) * LOAD_CELL_SCALE;
+
+    return round(scale * 10000.0) / 10000.0;
+}
+
 std::vector<int> normalize_vector(const std::vector<int>& vec, int new_min = -50, int new_max = 50) {
     std::vector<int> vector_normalizado;
 
