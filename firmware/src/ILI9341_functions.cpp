@@ -1,6 +1,5 @@
 #include "definitions.h"
 
-
 #define WHITE   ILI9341_WHITE
 #define BLUE    ILI9341_BLUE
 #define RED     ILI9341_RED
@@ -10,9 +9,12 @@
 #define PURPLE  ILI9341_PURPLE
 #define BLACK   ILI9341_BLACK
 #define GRAY    ILI9341_DARKGREY
-#define DGREEN  ILI9341_DARKGREEN
-#define DORANGE 0xFC00
 #define DGRAY   0x2104
+
+#define CHANNEL_1_COLOR       0x077f
+#define CHANNEL_1_DARK_COLOR  0x0619
+#define CHANNEL_2_COLOR       0xf2bf
+#define CHANNEL_2_DARK_COLOR  0xa9d5
 
 const int ROW_SIZE = 20;
 const int MARGIN_SIZE = 10;
@@ -22,12 +24,23 @@ const int SCREEN_WIDTH_MAX = 320;
 const int SCREEN_HEIGHT_MAX = 240;
 const int SCREEN_WIDTH_MIDDLE = (SCREEN_WIDTH_MAX - SCREEN_WIDTH_MIN)/2;
 const int SCREEN_HEIGHT_MIDDLE = (SCREEN_HEIGHT_MAX - SCREEN_HEIGHT_MIN)/2 - ROW_SIZE;
-
 const int GRAPHIC_X_AXIS = (SCREEN_HEIGHT_MAX-SCREEN_HEIGHT_MIDDLE)/2 + SCREEN_HEIGHT_MIDDLE;
 const int HISTOGRAM_Y_AXIS = (SCREEN_WIDTH_MAX-SCREEN_WIDTH_MIDDLE)/2 + SCREEN_WIDTH_MIDDLE;
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 
+void drawPlayAndStop(bool status=true){
+
+  int radius = 10;
+  int circle_margin = 4;
+
+  if(status==true){
+    tft.fillCircle(SCREEN_WIDTH_MAX - radius - circle_margin, SCREEN_HEIGHT_MIN + radius + circle_margin, radius, GREEN);
+  }
+  else{
+    tft.fillCircle(SCREEN_WIDTH_MAX - radius - circle_margin, SCREEN_HEIGHT_MIN + radius + circle_margin, radius, RED);
+  }
+}
 
 void drawHistogram(const float* data, int numBars) {
   int barWidth = 20;
@@ -75,20 +88,20 @@ void setHistogramValue(int initialized=true, long value=0, int channel=0){
   //Este fillrect es el area maxima a utilizar en el grafico
   tft.fillRect(SCREEN_WIDTH_MIDDLE+1, SCREEN_HEIGHT_MIDDLE+1, SCREEN_WIDTH_MIDDLE-2, SCREEN_HEIGHT_MIDDLE + 2*ROW_SIZE - 2, BLACK);
 
-  if(initialized!=true){
+  if(initialized!=false){
     for(int i=-75;i<=75;i+=15){
       tft.drawLine(HISTOGRAM_Y_AXIS+i, SCREEN_HEIGHT_MIDDLE+1, HISTOGRAM_Y_AXIS+i, SCREEN_HEIGHT_MAX-2, DGRAY);
       if(i==0){tft.drawLine(HISTOGRAM_Y_AXIS, SCREEN_HEIGHT_MIDDLE+1, HISTOGRAM_Y_AXIS, SCREEN_HEIGHT_MAX-2, RED);}
     }
 
     row = 0;
-    drawText(GREEN, SCREEN_WIDTH_MIDDLE + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "std: ");
+    drawText(CHANNEL_1_COLOR, SCREEN_WIDTH_MIDDLE + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "std: ");
     row = 1;
-    drawText(GREEN, SCREEN_WIDTH_MIDDLE + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "mean: ");
+    drawText(CHANNEL_1_COLOR, SCREEN_WIDTH_MIDDLE + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "mean: ");
     row = 2;
-    drawText(ORANGE, SCREEN_WIDTH_MIDDLE + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "std: ");
+    drawText(CHANNEL_2_COLOR, SCREEN_WIDTH_MIDDLE + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "std: ");
     row = 3;
-    drawText(ORANGE, SCREEN_WIDTH_MIDDLE + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "mean: ");
+    drawText(CHANNEL_2_COLOR, SCREEN_WIDTH_MIDDLE + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, "mean: ");
   }
 }
 
@@ -105,19 +118,19 @@ void setGraphicalLimitsInformation(std::vector<double> channel_1={0}, std::vecto
 
   row = 0;
   snprintf(message, sizeof(message), "max: %.2f", ch1_max);
-  drawText(GREEN, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
+  drawText(CHANNEL_1_COLOR, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
 
   row = 1;
   snprintf(message, sizeof(message), "min: %.2f", ch1_min);
-  drawText(GREEN, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
+  drawText(CHANNEL_1_COLOR, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
 
   row = 2;
   snprintf(message, sizeof(message), "max: %.2f", ch2_max);
-  drawText(ORANGE, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
+  drawText(CHANNEL_2_COLOR, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message);
 
   row = 3;
   snprintf(message, sizeof(message), "min: %.2f", ch2_min);
-  drawText(ORANGE, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message); 
+  drawText(CHANNEL_2_COLOR, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message); 
 }
 
 void setGraphicalValue(bool initialized=true, std::vector<double> channel_1={0}, std::vector<double> channel_2={0}){
@@ -130,17 +143,17 @@ void setGraphicalValue(bool initialized=true, std::vector<double> channel_1={0},
   tft.fillRect(SCREEN_WIDTH_MIN +1, SCREEN_HEIGHT_MIDDLE +1, SCREEN_WIDTH_MIDDLE -1, SCREEN_HEIGHT_MIDDLE + 2*ROW_SIZE - 2, BLACK);
   
   if(initialized!=true){
-    int color_channel_1 = DGREEN;
-    int color_channel_2 = DORANGE;
-
-    for(int i=1;i<channel_1.size();i++){
-      tft.drawPixel(i, GRAPHIC_X_AXIS+channel_1[i], color_channel_1);
-      tft.drawPixel(i, GRAPHIC_X_AXIS+channel_2[i], color_channel_2);
-    }
+    int color_channel_1 = CHANNEL_1_DARK_COLOR;
+    int color_channel_2 = CHANNEL_2_DARK_COLOR;
 
     for(int i=-60;i<=60;i+=15){
       tft.drawLine(SCREEN_WIDTH_MIN+1, GRAPHIC_X_AXIS+i, SCREEN_WIDTH_MIDDLE-1, GRAPHIC_X_AXIS+i, DGRAY);
       if(i==0){tft.drawLine(SCREEN_WIDTH_MIN+1, GRAPHIC_X_AXIS, SCREEN_WIDTH_MIDDLE-1, GRAPHIC_X_AXIS, RED);}
+    }
+
+    for(int i=1;i<channel_1.size();i++){
+      tft.drawPixel(i, GRAPHIC_X_AXIS+channel_1[i], color_channel_1);
+      tft.drawPixel(i, GRAPHIC_X_AXIS+channel_2[i], color_channel_2);
     }
   }
 }
@@ -195,7 +208,7 @@ void setChannelValue(double value, char unit[6], int channel){
   strcat(concatenated_value, " ");
   strcat(concatenated_value, unit);
 
-  eraseText(BLACK, x, y, w, h);
+  eraseText(BLACK, x, y, w-25, h);
   drawText(color, x, y, 2, concatenated_value);
 }
 
@@ -220,8 +233,8 @@ void eraseInformation(int row, int color=0){
 }
 
 void drawFramework(){
-  drawText(GREEN, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*0, 2, "Channel 1: ");
-  drawText(ORANGE, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*1, 2, "Channel 2: ");
+  drawText(CHANNEL_1_COLOR, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*0, 2, "Channel 1: ");
+  drawText(CHANNEL_2_COLOR, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*1, 2, "Channel 2: ");
   drawText(WHITE, SCREEN_WIDTH_MIN + MARGIN_SIZE, SCREEN_HEIGHT_MIN + MARGIN_SIZE + ROW_SIZE*2, 2, "Rel CH1/CH2: ");
   drawInformation("", 3);
   drawInformation("", 4);
@@ -232,6 +245,7 @@ void drawFramework(){
 
   setGraphicalValue(true);
   setHistogramValue(true);
+  drawPlayAndStop(false);
 }
 
 void initializingDisplay(){
