@@ -13,8 +13,8 @@
 
 #define CHANNEL_1_COLOR       0x077f
 #define CHANNEL_1_DARK_COLOR  0x0619
-#define CHANNEL_2_COLOR       0xf2bf
-#define CHANNEL_2_DARK_COLOR  0xa9d5
+#define CHANNEL_2_COLOR       0xcfe0
+#define CHANNEL_2_DARK_COLOR  0x9e00
 
 const int ROW_SIZE = 20;
 const int MARGIN_SIZE = 10;
