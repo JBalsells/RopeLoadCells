@@ -101,4 +101,6 @@ void loop() {
 
   setGraphicalValue(false, graphics_channel_1_vector, graphics_channel_2_vector);
   setGraphicalLimitsInformation(scaled_channel_1_vector, scaled_channel_2_vector);
+
+  drawPlayAndStop(true);
 }

@@ -10,5 +10,5 @@
     void drawInformation(const char text[100], int row, int color);
     void setGraphicalValue(bool initialized=true, std::vector<double> channel_1={0}, std::vector<double> channel_2={0});
     void setGraphicalLimitsInformation(std::vector<double> channel_1={0}, std::vector<double> channel_2={0});
-
+    void drawPlayAndStop(bool status=true);
 #endif
