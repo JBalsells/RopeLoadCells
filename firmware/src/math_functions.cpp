@@ -24,10 +24,11 @@ double random_normal_generatos(double media, double desviacion) {
 
 double load_scale(long adc_value = 0) {
     const float proportionality_constant = 1.2;
+    const double gravity = 9.81;
     const int LOAD_CELL_SCALE = 500;
     const long ADC_SCALE = (1L << 23);
 
-    double scale = proportionality_constant*((double)adc_value / (double)ADC_SCALE) * LOAD_CELL_SCALE;
+    double scale = gravity*proportionality_constant*((double)adc_value / (double)ADC_SCALE) * LOAD_CELL_SCALE;
 
     return round(scale * 10000.0) / 10000.0;
 }
