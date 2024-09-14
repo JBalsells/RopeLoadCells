@@ -86,7 +86,7 @@ void setHistogramValue(int initialized=true, long value=0, int channel=0){
   }
 }
 
-void setGraphicalValue(bool initialized=true, std::vector<int> channel_1={0}, std::vector<int> channel_2={0}){
+void setGraphicalValue(bool initialized=true, std::vector<double> channel_1={0}, std::vector<double> channel_2={0}){
   
   int row = 0;
   int row_size = 8;
@@ -154,7 +154,7 @@ void setRelationValue(float value){
   drawText(color, x, y, 2, float_value);
 }
 
-void setChannelValue(long value, char unit[6], int channel){
+void setChannelValue(double value, char unit[6], int channel){
   int x = 0;
   int y = 0;
   int w = 0;
@@ -177,7 +177,7 @@ void setChannelValue(long value, char unit[6], int channel){
   h = ROW_SIZE - 1;
 
   char concatenated_value[20];
-  snprintf(concatenated_value, sizeof(concatenated_value), "%d", value);
+  snprintf(concatenated_value, sizeof(concatenated_value), "%.2f", value);
   strcat(concatenated_value, " ");
   strcat(concatenated_value, unit);
 
