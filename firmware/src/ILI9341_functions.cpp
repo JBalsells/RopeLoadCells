@@ -133,30 +133,36 @@ void setGraphicalLimitsInformation(std::vector<double> channel_1={0}, std::vecto
   drawText(CHANNEL_2_COLOR, SCREEN_WIDTH_MIN + margin_size, SCREEN_HEIGHT_MIDDLE + margin_size + row_size*row, 1, message); 
 }
 
-void setGraphicalValue(bool initialized=true, std::vector<double> channel_1={0}, std::vector<double> channel_2={0}){
+void setGraphicalValue(bool initialized = true, std::vector<double> channel_1 = {0}, std::vector<double> channel_2 = {0}) {
   
   int row = 0;
   int row_size = 8;
   int margin_size = 3;
 
-  //Este fillrect es el area maxima a utilizar en el grafico
-  tft.fillRect(SCREEN_WIDTH_MIN +1, SCREEN_HEIGHT_MIDDLE +1, SCREEN_WIDTH_MIDDLE -1, SCREEN_HEIGHT_MIDDLE + 2*ROW_SIZE - 2, BLACK);
-  
-  if(initialized!=true){
+  // Este fillRect es el área máxima a utilizar en el gráfico
+  tft.fillRect(SCREEN_WIDTH_MIN + 1, SCREEN_HEIGHT_MIDDLE + 1, SCREEN_WIDTH_MIDDLE - 1, SCREEN_HEIGHT_MIDDLE + 2 * ROW_SIZE - 2, BLACK);
+
+  if (initialized != true) {
     int color_channel_1 = CHANNEL_1_DARK_COLOR;
     int color_channel_2 = CHANNEL_2_DARK_COLOR;
 
-    for(int i=-60;i<=60;i+=15){
-      tft.drawLine(SCREEN_WIDTH_MIN+1, GRAPHIC_X_AXIS+i, SCREEN_WIDTH_MIDDLE-1, GRAPHIC_X_AXIS+i, DGRAY);
-      if(i==0){tft.drawLine(SCREEN_WIDTH_MIN+1, GRAPHIC_X_AXIS, SCREEN_WIDTH_MIDDLE-1, GRAPHIC_X_AXIS, RED);}
+    // Dibujar las líneas de la cuadrícula
+    for (int i = -60; i <= 60; i += 15) {
+      tft.drawLine(SCREEN_WIDTH_MIN + 1, GRAPHIC_X_AXIS + i, SCREEN_WIDTH_MIDDLE - 1, GRAPHIC_X_AXIS + i, DGRAY);
+      if (i == 0) {
+        tft.drawLine(SCREEN_WIDTH_MIN + 1, GRAPHIC_X_AXIS, SCREEN_WIDTH_MIDDLE - 1, GRAPHIC_X_AXIS, RED);
+      }
     }
 
-    for(int i=1;i<channel_1.size();i++){
-      tft.drawPixel(i, GRAPHIC_X_AXIS+channel_1[i], color_channel_1);
-      tft.drawPixel(i, GRAPHIC_X_AXIS+channel_2[i], color_channel_2);
+    // Dibujar líneas continuas para channel_1 y channel_2
+    for (int i = 1; i < channel_1.size(); i++) {
+      // Dibujar líneas continuas en lugar de píxeles para channel_1 y channel_2
+      tft.drawLine(i - 1, GRAPHIC_X_AXIS + channel_1[i - 1], i, GRAPHIC_X_AXIS + channel_1[i], color_channel_1);
+      tft.drawLine(i - 1, GRAPHIC_X_AXIS + channel_2[i - 1], i, GRAPHIC_X_AXIS + channel_2[i], color_channel_2);
     }
   }
 }
+
 
 void setRelationValue(float value){
   int x = 0;

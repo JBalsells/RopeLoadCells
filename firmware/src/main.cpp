@@ -6,7 +6,8 @@
 
 char UNIT[6] = "";
 int CHANNEL = 1;
-int SAMPLES = 25;
+int SAMPLES = 20;
+bool PlayAndStop = true;
 int OFFSET_CHANNEL_1 = 0;
 int OFFSET_CHANNEL_2 = 0;
 long raw_value_channel_1 = 0;
@@ -100,21 +101,25 @@ void loop() {
   normalized_channel_2_vector.erase(normalized_channel_2_vector.begin());
   normalized_channel_2_vector.push_back(normalized_channel_2);
 
-  graphics_channel_1_vector = normalize_vector(normalized_channel_1_vector);
-  graphics_channel_2_vector = normalize_vector(normalized_channel_2_vector);
+  std::tie(graphics_channel_1_vector, graphics_channel_2_vector) = normalize_vectors(normalized_channel_1_vector, normalized_channel_2_vector);
 
-  CHANNEL = 1;
-  strcpy(UNIT, "N");
-  setChannelValue(scaled_value_channel_1, UNIT, CHANNEL);
+  if(PlayAndStop == true){
+    CHANNEL = 1;
+    strcpy(UNIT, "N");
+    setChannelValue(scaled_value_channel_1, UNIT, CHANNEL);
 
-  CHANNEL = 2;
-  strcpy(UNIT, "N");
-  setChannelValue(scaled_value_channel_2, UNIT, CHANNEL);
+    CHANNEL = 2;
+    strcpy(UNIT, "N");
+    setChannelValue(scaled_value_channel_2, UNIT, CHANNEL);
 
-  setRelationValue((float)scaled_value_channel_1/(float)scaled_value_channel_2);
+    setRelationValue((float)scaled_value_channel_1/(float)scaled_value_channel_2);
 
-  setGraphicalValue(false, graphics_channel_1_vector, graphics_channel_2_vector);
-  setGraphicalLimitsInformation(scaled_channel_1_vector, scaled_channel_2_vector);
+    setGraphicalValue(false, graphics_channel_1_vector, graphics_channel_2_vector);
+    setGraphicalLimitsInformation(scaled_channel_1_vector, scaled_channel_2_vector);
 
-  drawPlayAndStop(true);
+    drawPlayAndStop(true);
+  }
+  else{
+    drawPlayAndStop(false);
+  }
 }

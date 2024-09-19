@@ -42,36 +42,45 @@ double load_scale(long adc_value = 0) {
     return round(scale * 10000.0) / 10000.0;
 }
 
-std::vector<double> normalize_vector(const std::vector<double>& vec, int new_min = -50, int new_max = 50) {
-    std::vector<double> vector_normalizado;
+double clamp(double valor, double min_val, double max_val) {
+    if (valor < min_val) return min_val;
+    if (valor > max_val) return max_val;
+    return valor;
+}
 
-    if (vec.empty()) return vector_normalizado; // Retornar un vector vacío si el vector original está vacío
+std::pair<std::vector<double>, std::vector<double>> normalize_vectors(
+    const std::vector<double>& vec1, const std::vector<double>& vec2, 
+    int new_min = -50, int new_max = 50) {
 
-    // Encuentra el valor mínimo y máximo en el vector
-    int viejo_min = *std::min_element(vec.begin(), vec.end());
-    int viejo_max = *std::max_element(vec.begin(), vec.end());
+    std::vector<double> vector_normalizado1;
+    std::vector<double> vector_normalizado2;
 
-    // Evitar la división por cero si todos los valores son iguales
+    if (vec1.empty() && vec2.empty()) return {vector_normalizado1, vector_normalizado2};
+
+    double viejo_min = std::min(*std::min_element(vec1.begin(), vec1.end()), *std::min_element(vec2.begin(), vec2.end()));
+    double viejo_max = std::max(*std::max_element(vec1.begin(), vec1.end()), *std::max_element(vec2.begin(), vec2.end()));
+
     if (viejo_min == viejo_max) {
-        vector_normalizado.resize(vec.size(), new_min); // Todos los valores serán igual al nuevo mínimo
-        return vector_normalizado;
+        vector_normalizado1.resize(vec1.size(), new_min);
+        vector_normalizado2.resize(vec2.size(), new_min);
+        return {vector_normalizado1, vector_normalizado2};
     }
 
-    // Normaliza los valores y los almacena en el nuevo vector
-    vector_normalizado.reserve(vec.size());
-    for (int valor : vec) {
-        // Normaliza el valor
-        int valor_normalizado = new_min + (valor - viejo_min) * (new_max - new_min) / (viejo_max - viejo_min);
-
-        // Limitar el valor a los rangos -50 a 50
-        if (valor_normalizado > new_max) {
-            valor_normalizado = new_max;
-        } else if (valor_normalizado < new_min) {
-            valor_normalizado = new_min;
-        }
-
-        vector_normalizado.push_back(valor_normalizado);
+    // Normaliza los valores del primer vector
+    vector_normalizado1.reserve(vec1.size());
+    for (double valor : vec1) {
+        double valor_normalizado = new_min + (valor - viejo_min) * (new_max - new_min) / (viejo_max - viejo_min);
+        valor_normalizado = clamp(valor_normalizado, static_cast<double>(new_min), static_cast<double>(new_max));
+        vector_normalizado1.push_back(valor_normalizado);
     }
 
-    return vector_normalizado;
+    // Normaliza los valores del segundo vector
+    vector_normalizado2.reserve(vec2.size());
+    for (double valor : vec2) {
+        double valor_normalizado = new_min + (valor - viejo_min) * (new_max - new_min) / (viejo_max - viejo_min);
+        valor_normalizado = clamp(valor_normalizado, static_cast<double>(new_min), static_cast<double>(new_max));
+        vector_normalizado2.push_back(valor_normalizado);
+    }
+
+    return {vector_normalizado1, vector_normalizado2};
 }
