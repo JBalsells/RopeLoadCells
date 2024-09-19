@@ -20,6 +20,7 @@ double interpolated_value_channel_1 = 0;
 double interpolated_value_channel_2 = 0;
 
 int vector_index = 0;
+int graphics_zero = 0;
 std::vector<double> graphics_channel_1_vector;
 std::vector<double> graphics_channel_2_vector;
 std::vector<double> moving_average_channel_1 = {0,0,0,0,0};
@@ -88,8 +89,8 @@ void loop() {
   interpolated_value_channel_1 = interpolation(moving_average_channel_1);
   interpolated_value_channel_2 = interpolation(moving_average_channel_2);
 
-  scaled_value_channel_1 = load_scale(interpolated_value_channel_1);
-  scaled_value_channel_2 = load_scale(interpolated_value_channel_2);
+  scaled_value_channel_1 = abs(load_scale(interpolated_value_channel_1));
+  scaled_value_channel_2 = abs(load_scale(interpolated_value_channel_2));
 
   scaled_channel_1_vector.erase(scaled_channel_1_vector.begin());
   scaled_channel_1_vector.push_back(scaled_value_channel_1);
@@ -101,7 +102,7 @@ void loop() {
   normalized_channel_2_vector.erase(normalized_channel_2_vector.begin());
   normalized_channel_2_vector.push_back(normalized_channel_2);
 
-  std::tie(graphics_channel_1_vector, graphics_channel_2_vector) = normalize_vectors(normalized_channel_1_vector, normalized_channel_2_vector);
+  std::tie(graphics_channel_1_vector, graphics_channel_2_vector, graphics_zero) = normalize_vectors(normalized_channel_1_vector, normalized_channel_2_vector);
 
   if(PlayAndStop == true){
     CHANNEL = 1;
@@ -114,8 +115,8 @@ void loop() {
 
     setRelationValue((float)scaled_value_channel_1/(float)scaled_value_channel_2);
 
-    setGraphicalValue(false, graphics_channel_1_vector, graphics_channel_2_vector);
-    setGraphicalLimitsInformation(scaled_channel_1_vector, scaled_channel_2_vector);
+    setGraphicalValue(false, graphics_channel_1_vector, graphics_channel_2_vector, scaled_channel_1_vector, scaled_channel_2_vector, graphics_zero);
+    setHistogramValue(false, scaled_channel_1_vector, scaled_channel_2_vector);
 
     drawPlayAndStop(true);
   }

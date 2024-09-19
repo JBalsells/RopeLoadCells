@@ -22,6 +22,31 @@ double random_normal_generatos(double media, double desviacion) {
     }
 }
 
+double calculateMean(const std::vector<double>& data) {
+    if (data.empty()) return 0.0;
+    
+    double sum = 0.0;
+    for (double value : data) {
+        sum += value;
+    }
+    return sum / data.size();
+}
+
+std::pair<double, double> calculateStandardDeviation(const std::vector<double>& data) {
+    if (data.empty()) return {0.0, 0.0};
+
+    double mean = calculateMean(data);
+    double sumSquaredDiffs = 0.0;
+
+    for (double value : data) {
+        double diff = value - mean;
+        sumSquaredDiffs += diff * diff;
+    }
+    double variance = sumSquaredDiffs / data.size();
+    double stdDev = std::sqrt(variance);
+    return {mean, stdDev};
+}
+
 double interpolation(const std::vector<double>& vec){
     double sum = 0;
     for(int i=0; i<vec.size();i++){
@@ -48,23 +73,28 @@ double clamp(double valor, double min_val, double max_val) {
     return valor;
 }
 
-std::pair<std::vector<double>, std::vector<double>> normalize_vectors(
+std::tuple<std::vector<double>, std::vector<double>, int> normalize_vectors(
     const std::vector<double>& vec1, const std::vector<double>& vec2, 
     int new_min = -50, int new_max = 50) {
 
     std::vector<double> vector_normalizado1;
     std::vector<double> vector_normalizado2;
 
-    if (vec1.empty() && vec2.empty()) return {vector_normalizado1, vector_normalizado2};
+    if (vec1.empty() && vec2.empty()) return {vector_normalizado1, vector_normalizado2, 0.0};
 
     double viejo_min = std::min(*std::min_element(vec1.begin(), vec1.end()), *std::min_element(vec2.begin(), vec2.end()));
     double viejo_max = std::max(*std::max_element(vec1.begin(), vec1.end()), *std::max_element(vec2.begin(), vec2.end()));
 
+    // Si viejo_min es igual a viejo_max, entonces todos los valores son iguales
     if (viejo_min == viejo_max) {
         vector_normalizado1.resize(vec1.size(), new_min);
         vector_normalizado2.resize(vec2.size(), new_min);
-        return {vector_normalizado1, vector_normalizado2};
+        return {vector_normalizado1, vector_normalizado2, new_min};
     }
+
+    // Calcular el valor normalizado correspondiente a cero
+    double valor_normalizado_cero = new_min + (0 - viejo_min) * (new_max - new_min) / (viejo_max - viejo_min);
+    valor_normalizado_cero = clamp(valor_normalizado_cero, static_cast<double>(new_min), static_cast<double>(new_max));
 
     // Normaliza los valores del primer vector
     vector_normalizado1.reserve(vec1.size());
@@ -82,5 +112,5 @@ std::pair<std::vector<double>, std::vector<double>> normalize_vectors(
         vector_normalizado2.push_back(valor_normalizado);
     }
 
-    return {vector_normalizado1, vector_normalizado2};
+    return {vector_normalizado1, vector_normalizado2, valor_normalizado_cero};
 }
