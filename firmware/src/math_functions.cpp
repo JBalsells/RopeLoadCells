@@ -22,6 +22,15 @@ double random_normal_generatos(double media, double desviacion) {
     }
 }
 
+double interpolation(const std::vector<double>& vec){
+    double sum = 0;
+    for(int i=0; i<vec.size();i++){
+        sum += vec[i];
+    }
+    
+    return (double)sum/(double)vec.size();
+}
+
 double load_scale(long adc_value = 0) {
     const float proportionality_constant = 1.2;
     const double gravity = 9.81;

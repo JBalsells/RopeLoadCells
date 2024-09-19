@@ -27,7 +27,7 @@ long readADS1232(int PinData, int PinSCLK, int PinPOMN) {
 }
 
 long auto_calibrate(int samples, int PinData, int PinSCLK, int PinPOMN){
-  int i;
+  int i = 0;
   long suma_datos = 0;
 
   for (i = 0; i < samples; i++) {
