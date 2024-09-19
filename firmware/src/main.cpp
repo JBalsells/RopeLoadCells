@@ -5,24 +5,28 @@
 #include "ADS1232_functions.h"
 
 char UNIT[6] = "";
+int CHANNEL = 1;
+int SAMPLES = 25;
 int OFFSET_CHANNEL_1 = 0;
 int OFFSET_CHANNEL_2 = 0;
-int CHANNEL = 1;
-int SAMPLES = 10;
 long raw_value_channel_1 = 0;
 long raw_value_channel_2 = 0;
 double normalized_channel_1 = 0;
 double normalized_channel_2 = 0;
 float scaled_value_channel_1 = 0;
 float scaled_value_channel_2 = 0;
+double interpolated_value_channel_1 = 0;
+double interpolated_value_channel_2 = 0;
 
 int vector_index = 0;
+std::vector<double> graphics_channel_1_vector;
+std::vector<double> graphics_channel_2_vector;
+std::vector<double> moving_average_channel_1 = {0,0,0,0,0};
+std::vector<double> moving_average_channel_2 = {0,0,0,0,0};
 std::vector<double> normalized_channel_1_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::vector<double> normalized_channel_2_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::vector<double> scaled_channel_1_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::vector<double> scaled_channel_2_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-std::vector<double> graphics_channel_1_vector;
-std::vector<double> graphics_channel_2_vector;
 
 void setup() {
   Serial.begin(115200);
@@ -69,35 +73,45 @@ void setup() {
 
 void loop() {
 
+  raw_value_channel_1 = readADS1232(pinData1, pinSCLK1, pinPOMN1);
+  raw_value_channel_2 = readADS1232(pinData2, pinSCLK2, pinPOMN2);
+
+  normalized_channel_1 = raw_value_channel_1 - OFFSET_CHANNEL_1;
+  normalized_channel_2 = raw_value_channel_2 - OFFSET_CHANNEL_2;
+
+  moving_average_channel_1.erase(moving_average_channel_1.begin());
+  moving_average_channel_1.push_back(normalized_channel_1);
+  moving_average_channel_2.erase(moving_average_channel_2.begin());
+  moving_average_channel_2.push_back(normalized_channel_2);
+
+  interpolated_value_channel_1 = interpolation(moving_average_channel_1);
+  interpolated_value_channel_2 = interpolation(moving_average_channel_2);
+
+  scaled_value_channel_1 = load_scale(interpolated_value_channel_1);
+  scaled_value_channel_2 = load_scale(interpolated_value_channel_2);
+
+  scaled_channel_1_vector.erase(scaled_channel_1_vector.begin());
+  scaled_channel_1_vector.push_back(scaled_value_channel_1);
+  scaled_channel_2_vector.erase(scaled_channel_2_vector.begin());
+  scaled_channel_2_vector.push_back(scaled_value_channel_2);
+
+  normalized_channel_1_vector.erase(normalized_channel_1_vector.begin());
+  normalized_channel_1_vector.push_back(normalized_channel_1);
+  normalized_channel_2_vector.erase(normalized_channel_2_vector.begin());
+  normalized_channel_2_vector.push_back(normalized_channel_2);
+
+  graphics_channel_1_vector = normalize_vector(normalized_channel_1_vector);
+  graphics_channel_2_vector = normalize_vector(normalized_channel_2_vector);
+
   CHANNEL = 1;
   strcpy(UNIT, "N");
-  raw_value_channel_1 = readADS1232(pinData1, pinSCLK1, pinPOMN1);
-  normalized_channel_1 = raw_value_channel_1 - OFFSET_CHANNEL_1;
-  scaled_value_channel_1 = load_scale(normalized_channel_1);
   setChannelValue(scaled_value_channel_1, UNIT, CHANNEL);
 
   CHANNEL = 2;
   strcpy(UNIT, "N");
-  raw_value_channel_2 = readADS1232(pinData2, pinSCLK2, pinPOMN2);
-  normalized_channel_2 = raw_value_channel_2 - OFFSET_CHANNEL_2;
-  scaled_value_channel_2 = load_scale(normalized_channel_2);
   setChannelValue(scaled_value_channel_2, UNIT, CHANNEL);
 
-  setRelationValue((float)normalized_channel_1/(float)normalized_channel_2);
-
-  scaled_channel_1_vector.erase(scaled_channel_1_vector.begin());
-  scaled_channel_1_vector.push_back(scaled_value_channel_1);
-
-  normalized_channel_1_vector.erase(normalized_channel_1_vector.begin());
-  normalized_channel_1_vector.push_back(normalized_channel_1);
-  graphics_channel_1_vector = normalize_vector(normalized_channel_1_vector);
-
-  scaled_channel_2_vector.erase(scaled_channel_2_vector.begin());
-  scaled_channel_2_vector.push_back(scaled_value_channel_2);
-
-  normalized_channel_2_vector.erase(normalized_channel_2_vector.begin());
-  normalized_channel_2_vector.push_back(normalized_channel_2);
-  graphics_channel_2_vector = normalize_vector(normalized_channel_2_vector);
+  setRelationValue((float)scaled_value_channel_1/(float)scaled_value_channel_2);
 
   setGraphicalValue(false, graphics_channel_1_vector, graphics_channel_2_vector);
   setGraphicalLimitsInformation(scaled_channel_1_vector, scaled_channel_2_vector);
