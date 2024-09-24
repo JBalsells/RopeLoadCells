@@ -1,0 +1,4 @@
+numpy
+mariadb
+matplotlib
+mysql-connector-python
