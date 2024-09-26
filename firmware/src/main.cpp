@@ -5,24 +5,15 @@
 #include "ADS1232_functions.h"
 
 char UNIT[6] = "";
-int CHANNEL = 1;
-int SAMPLES = 20;
-bool PlayAndStop = true;
-int OFFSET_CHANNEL_1 = 0;
-int OFFSET_CHANNEL_2 = 0;
-long raw_value_channel_1 = 0;
-long raw_value_channel_2 = 0;
-double normalized_channel_1 = 0;
-double normalized_channel_2 = 0;
-float scaled_value_channel_1 = 0;
-float scaled_value_channel_2 = 0;
-double interpolated_value_channel_1 = 0;
-double interpolated_value_channel_2 = 0;
-
-int vector_index = 0;
-int graphics_zero = 0;
-std::vector<double> graphics_channel_1_vector;
-std::vector<double> graphics_channel_2_vector;
+bool SendData = true;
+int CHANNEL = 0, SAMPLES = 20;
+int vector_index = 0, graphics_zero = 0;
+int OFFSET_CHANNEL_1 = 0, OFFSET_CHANNEL_2 = 0;
+long raw_value_channel_1 = 0, raw_value_channel_2 = 0;
+double normalized_channel_1 = 0, normalized_channel_2 = 0;
+float scaled_value_channel_1 = 0, scaled_value_channel_2 = 0;
+double interpolated_value_channel_1 = 0, interpolated_value_channel_2 = 0;
+std::vector<double> graphics_channel_1_vector, graphics_channel_2_vector;
 std::vector<double> moving_average_channel_1 = {0,0,0,0,0};
 std::vector<double> moving_average_channel_2 = {0,0,0,0,0};
 std::vector<double> normalized_channel_1_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -85,7 +76,6 @@ void loop() {
   moving_average_channel_1.push_back(normalized_channel_1);
   moving_average_channel_2.erase(moving_average_channel_2.begin());
   moving_average_channel_2.push_back(normalized_channel_2);
-
   interpolated_value_channel_1 = interpolation(moving_average_channel_1);
   interpolated_value_channel_2 = interpolation(moving_average_channel_2);
 
@@ -104,7 +94,7 @@ void loop() {
 
   std::tie(graphics_channel_1_vector, graphics_channel_2_vector, graphics_zero) = normalize_vectors(normalized_channel_1_vector, normalized_channel_2_vector);
 
-  if(PlayAndStop == true){
+  if(SendData == true){
     CHANNEL = 1;
     strcpy(UNIT, "N");
     setChannelValue(scaled_value_channel_1, UNIT, CHANNEL);
@@ -119,8 +109,25 @@ void loop() {
     setHistogramValue(false, scaled_channel_1_vector, scaled_channel_2_vector);
 
     drawPlayAndStop(true);
+
+    if(SendData==true){
+      Serial.println("raw_1:"+String(raw_value_channel_1)+">raw_2:"+String(raw_value_channel_2));
+    }
   }
   else{
     drawPlayAndStop(false);
+  }
+
+  if (Serial.available() > 0) {
+    char option = Serial.read();
+
+    switch(option){
+      case 'd':
+        SendData = !SendData;
+        break;
+      case 'o':
+        Serial.println("offset_1:"+String(OFFSET_CHANNEL_1)+">offset_2:"+String(OFFSET_CHANNEL_2));
+        break;
+    }
   }
 }

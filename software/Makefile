@@ -6,9 +6,7 @@ all: venv install
 venv:
 	@echo "Creating virtual environment..."
 	python3 -m venv $(VENV_DIR)
-	@. venv/bin/activate && \
-	@echo "Virtual environment created."
-	@echo 
+	# @source venv/bin/activate && \
 
 install:
 	@echo "Installing packages from requirements.txt..."
